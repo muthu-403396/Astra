@@ -24,7 +24,7 @@ import './Sidebar.css';
 
 const agentList = [
   { 
-    name: 'Business User Assistant', 
+    name: 'Business User Agent', 
     icon: <FaHeadset />, 
     questions: [
       'What are the current sales trends?',
@@ -54,7 +54,7 @@ const agentList = [
     ]
   },
   { 
-    name: 'BI Engineers Assistant', 
+    name: 'BI Engineers Agent', 
     icon: <FaBriefcase />,
     questions: [
       'What is the current status of the data warehouse ETL job?',
@@ -64,7 +64,7 @@ const agentList = [
     ]
   },
   { 
-    name: 'Data Analyst Assistant', 
+    name: 'Data Analyst Agent', 
     icon: <FaChartLine />,
     questions: [
       'Run a cohort analysis on user engagement.',
@@ -125,6 +125,15 @@ const Sidebar = ({ username, onAgentSelect, onNewChat, sessions, onSelectSession
     document.addEventListener('mouseup', onUp);
   };
 
+  const handleHistoryClick = () => {
+    if (collapsed && typeof onToggleCollapse === 'function') {
+      onToggleCollapse();
+      setHistoryOpen(true);
+      return;
+    }
+    setHistoryOpen(!historyOpen);
+  };
+
   const personaClass = persona && persona.toLowerCase().includes('developer') ? 'developer' : 'business';
 
   return (
@@ -143,8 +152,8 @@ const Sidebar = ({ username, onAgentSelect, onNewChat, sessions, onSelectSession
       {!collapsed && (
         <div className="sidebar-header">
           <h2>
-            <span className="logo-intelli">Intelli</span>
-            <span className="logo-ops">Ops</span> 🤖
+            <span className="logo-intelli">Astra</span>
+            <span className="logo-ops">AI</span>
           </h2>
         </div>
       )}
@@ -152,7 +161,7 @@ const Sidebar = ({ username, onAgentSelect, onNewChat, sessions, onSelectSession
         <button onClick={onNewChat} className="chip-button" title="New chat">
           <FaPen /> {!collapsed && <span className="chip-text">New</span>}
         </button>
-        <button className="chip-button" onClick={() => setHistoryOpen(!historyOpen)} title="History">
+        <button className="chip-button" onClick={handleHistoryClick} title="History">
           <FaHistory /> {!collapsed && <span className="chip-text">History</span>}
         </button>
       </div>
@@ -163,42 +172,45 @@ const Sidebar = ({ username, onAgentSelect, onNewChat, sessions, onSelectSession
         </div>
       )}
 
-      {!collapsed && historyOpen && (
-        <div className="inline-history">
-          <input
-            className="history-search"
-            type="text"
-            placeholder="Search chats..."
-            value={historyQuery}
-            onChange={(e) => setHistoryQuery(e.target.value)}
-          />
-          <div className="chat-history">
-            {filteredSessions.map(session => (
-              <div 
-                key={session.id} 
-                className={`history-item ${session.id === activeSessionId ? 'active' : ''}`}
-                onClick={() => onSelectSession(session.id)}
-                title={getSessionTitle(session)}
-              >
-                {getSessionTitle(session)}
+      {!collapsed && (
+        <div className="agent-or-history">
+          {historyOpen ? (
+            <div className="inline-history">
+              <input
+                className="history-search"
+                type="text"
+                placeholder="Search chats..."
+                value={historyQuery}
+                onChange={(e) => setHistoryQuery(e.target.value)}
+              />
+              <div className="chat-history">
+                {filteredSessions.map(session => (
+                  <div 
+                    key={session.id} 
+                    className={`history-item ${session.id === activeSessionId ? 'active' : ''}`}
+                    onClick={() => onSelectSession(session.id)}
+                    title={getSessionTitle(session)}
+                  >
+                    {getSessionTitle(session)}
+                  </div>
+                ))}
+                {filteredSessions.length === 0 && (
+                  <div className="history-empty">No chats match your search.</div>
+                )}
               </div>
-            ))}
-            {filteredSessions.length === 0 && (
-              <div className="history-empty">No chats match your search.</div>
-            )}
-          </div>
+            </div>
+          ) : (
+            <div className="agent-list">
+              {agentList.map((agent, index) => (
+                <div key={index} className="agent-item disabled" aria-disabled="true" title="Agents are auto-selected by the system based on your question.">
+                  {agent.icon} <span className="agent-name">{agent.name}</span>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
 
-      {!collapsed && (
-        <div className="agent-list">
-          {agentList.map((agent, index) => (
-            <div key={index} className="agent-item disabled" aria-disabled="true" title="Agents are auto-selected by the system based on your question.">
-              {agent.icon} <span className="agent-name">{agent.name}</span>
-            </div>
-          ))}
-        </div>
-      )}
       <div className="sidebar-footer">
         {!collapsed && (
           <div className="settings">

@@ -15,19 +15,19 @@ const ChatbotPage = () => {
     'Business User': [
       {
         text: 'What are the current sales trends?',
-        plan: { type: 'sequential', steps: ['Data Analyst Assistant', 'BI Engineers Assistant', 'Business User Assistant'] }
+        plan: { type: 'sequential', steps: ['Data Analyst Agent', 'BI Engineers Agent', 'Business User Agent'] }
       },
       {
         text: 'Generate a report on Q3 performance.',
-        plan: { type: 'sequential', steps: ['BI Engineers Assistant', 'Business User Assistant'] }
+        plan: { type: 'sequential', steps: ['BI Engineers Agent', 'Business User Agent'] }
       },
       {
         text: 'Summarize the latest market analysis.',
-        plan: { type: 'parallel', steps: ['Data Analyst Assistant', 'Business User Assistant'] }
+        plan: { type: 'parallel', steps: ['Data Analyst Agent', 'Business User Agent'] }
       },
       {
         text: 'What are our top-selling products?',
-        plan: { type: 'sequential', steps: ['BI Engineers Assistant', 'Business User Assistant'] }
+        plan: { type: 'sequential', steps: ['BI Engineers Agent', 'Business User Agent'] }
       }
     ],
     'Developer': [
@@ -41,7 +41,7 @@ const ChatbotPage = () => {
       },
       {
         text: 'What is the error budget for the checkout API?',
-        plan: { type: 'sequential', steps: ['Data Analyst Assistant', 'Support Engineer Agent'] }
+        plan: { type: 'sequential', steps: ['Data Analyst Agent', 'Support Engineer Agent'] }
       },
       {
         text: 'List recent deployments and their status.',
@@ -52,10 +52,10 @@ const ChatbotPage = () => {
 
   const rotatingPlans = [
     { type: 'sequential', steps: ['Incident History Agent', 'Support Engineer Agent'] },
-    { type: 'parallel', steps: ['Data Analyst Assistant', 'BI Engineers Assistant'] },
+    { type: 'parallel', steps: ['Data Analyst Agent', 'BI Engineers Agent'] },
     { type: 'sequential', steps: ['KEDB Agent', 'Support Engineer Agent', 'Incident History Agent'] },
-    { type: 'sequential', steps: ['BI Engineers Assistant', 'Business User Assistant'] },
-    { type: 'parallel', steps: ['KEDB Agent', 'Data Analyst Assistant', 'BI Engineers Assistant'] },
+    { type: 'sequential', steps: ['BI Engineers Agent', 'Business User Agent'] },
+    { type: 'parallel', steps: ['KEDB Agent', 'Data Analyst Agent', 'BI Engineers Agent'] },
   ];
 
   const defaultPersonaQuestions = personaQuestionsMap[persona] || [];
@@ -83,7 +83,86 @@ const ChatbotPage = () => {
     return `Here is the planned sequence of agents: ${numbered}.`;
   };
 
-  const runThoughtSequence = (finalText, sessionId) => {
+  const updateMessageExecution = (sessionId, messageId, updater) => {
+    setSessions(prev => prev.map(s => {
+      if (s.id !== sessionId) return s;
+      const messages = s.messages.map(m => {
+        if (m.id !== messageId) return m;
+        return updater(m);
+      });
+      return { ...s, messages };
+    }));
+  };
+
+  const startExecutionSimulation = (sessionId, messageId, plan) => {
+    const runStep = (index) => {
+      updateMessageExecution(sessionId, messageId, (m) => {
+        const steps = m.execution.steps.map((st, i) => i === index ? { ...st, status: 'running' } : st);
+        return { ...m, execution: { ...m.execution, steps } };
+      });
+      let seconds = null;
+      updateMessageExecution(sessionId, messageId, (m) => {
+        const st = m.execution.steps[index];
+        seconds = st.durationSeconds;
+        return m;
+      });
+      const interval = setInterval(() => {
+        seconds -= 1;
+        updateMessageExecution(sessionId, messageId, (m) => {
+          const steps = m.execution.steps.map((st, i) => i === index ? { ...st, remainingSeconds: Math.max(0, seconds) } : st);
+          return { ...m, execution: { ...m.execution, steps } };
+        });
+        if (seconds <= 0) {
+          clearInterval(interval);
+          updateMessageExecution(sessionId, messageId, (m) => {
+            const steps = m.execution.steps.map((st, i) => i === index ? { ...st, status: 'success' } : st);
+            return { ...m, execution: { ...m.execution, steps } };
+          });
+          if (typeof runStep.onComplete === 'function') runStep.onComplete();
+        }
+      }, 1000);
+    };
+
+  if (plan.type === 'sequential') {
+      let current = 0;
+      const total = plan.steps.length + 2; // Start + steps + End
+      const advance = () => {
+        if (current >= total) return;
+        runStep.onComplete = () => {
+          current += 1;
+          if (current < total) advance();
+        };
+        runStep(current);
+      };
+      advance();
+    } else {
+      const planCount = plan.steps.length;
+      const endIndex = planCount + 1;
+      const startIndex = 0;
+
+      const onPlanStepComplete = (() => {
+        let completed = 0;
+        return () => {
+          completed += 1;
+          if (completed === planCount) {
+            runStep.onComplete = null;
+            runStep(endIndex);
+          }
+        };
+      })();
+
+      runStep.onComplete = () => {
+        runStep.onComplete = onPlanStepComplete;
+        for (let i = 1; i <= planCount; i += 1) {
+          runStep(i);
+        }
+      };
+
+      runStep(startIndex);
+    }
+  };
+
+  const runThoughtSequence = (finalText, sessionId, plan) => {
     setIsLoading(true);
     const thoughtTexts = [
       'Analyzing your request…',
@@ -103,10 +182,17 @@ const ChatbotPage = () => {
     });
 
     setTimeout(() => {
+      const messageId = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+      const fullSteps = [
+        { name: 'Start', status: 'pending', remainingSeconds: 3, durationSeconds: 3 },
+        ...plan.steps.map(name => ({ name, status: 'pending', remainingSeconds: 10, durationSeconds: 10 })),
+        { name: 'End', status: 'pending', remainingSeconds: 1, durationSeconds: 1 },
+      ];
       setSessions(prev => prev.map(s => {
         if (s.id !== sessionId) return s;
-        return { ...s, messages: [...s.messages, { text: finalText, sender: 'bot' }] };
+        return { ...s, messages: [...s.messages, { id: messageId, text: finalText, sender: 'bot', plan, execution: { type: plan.type, steps: fullSteps } }] };
       }));
+      startExecutionSimulation(sessionId, messageId, plan);
       setIsLoading(false);
     }, delay + 1000); // 1s after last thought
   };
@@ -121,7 +207,7 @@ const ChatbotPage = () => {
     const botText = formatPlanMessage(plan);
     setNextPlanIndex((nextPlanIndex + 1) % rotatingPlans.length);
 
-    runThoughtSequence(botText, currentSessionId);
+    runThoughtSequence(botText, currentSessionId, plan);
   };
 
   const handlePromptSelect = (prompt) => {
@@ -135,7 +221,7 @@ const ChatbotPage = () => {
     setSessions(sessions.map(s => s.id === activeSessionId ? updatedSession : s));
 
     const botText = formatPlanMessage(prompt.plan);
-    runThoughtSequence(botText, currentSessionId);
+    runThoughtSequence(botText, currentSessionId, prompt.plan);
   };
 
   const handleNewChat = () => {

@@ -96,14 +96,18 @@
   color: #faad14;
 }
 
+.agent-or-history {
+  margin-top: 0.25rem;
+  overflow: auto;
+  flex: 1 1 auto;
+}
+
 .inline-history {
   background: #ffffff;
   border: 1px solid #e5e7eb;
   border-radius: 8px;
   padding: 0.5rem 0.75rem;
   margin-bottom: 0.5rem;
-  max-height: 30vh;
-  overflow: auto;
 }
 
 .history-search {
@@ -140,7 +144,6 @@
 
 .agent-list {
   margin-top: 0.25rem;
-  overflow: auto;
 }
 
 .agent-item {
