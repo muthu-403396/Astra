@@ -1,0 +1,30 @@
+.header {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 1rem 2rem;
+  background: #fff;
+  border-bottom: 1px solid #ddd;
+}
+
+.project-selector {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.project-selector label {
+  font-weight: bold;
+}
+
+.project-selector select {
+  border: none;
+  background: transparent;
+  font-size: 1rem;
+}
+
+.settings-icon {
+  margin-left: 1.5rem;
+  cursor: pointer;
+  color: #888;
+} 
