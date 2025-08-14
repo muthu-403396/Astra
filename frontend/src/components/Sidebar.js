@@ -16,9 +16,7 @@ import {
   FaQuestionCircle,
   FaChevronLeft,
   FaChevronRight,
-  FaPen,
-  FaChevronDown,
-  FaChevronUp
+  FaPen
 } from 'react-icons/fa';
 import './Sidebar.css';
 
@@ -242,8 +240,8 @@ const Sidebar = ({ username, onAgentSelect, onNewChat, sessions, onSelectSession
         <h2>Support</h2>
         <p>If you need assistance, please contact our support team.</p>
         <p>
-          Email: <a href="mailto:support@example.com">support@example.com</a><br/>
-          Docs: <a href="https://example.com/docs" target="_blank" rel="noreferrer">Open documentation</a>
+          Email: <a href="mailto:Srivathsan.rl@cognizant.com">Srivathsan.rl@cognizant.com</a><br/>
+          Docs: <a href="https://www.cognizant.com/ca/en/services/neuro-intelligent-automation/neuro-generative-ai-adoption" target="_blank" rel="noreferrer">Astra AI documentation</a>
         </p>
         <button onClick={() => setSupportOpen(false)}>Close</button>
       </Modal>
