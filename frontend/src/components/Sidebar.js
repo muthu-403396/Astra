@@ -147,14 +147,7 @@ const Sidebar = ({ username, onAgentSelect, onNewChat, sessions, onSelectSession
           </div>
         )}
       </div>
-      {!collapsed && (
-        <div className="sidebar-header">
-          <h2>
-            <span className="logo-intelli">Astra</span>
-            <span className="logo-ops">AI</span>
-          </h2>
-        </div>
-      )}
+      
       <div className="new-chat">
         <button onClick={onNewChat} className="chip-button" title="New chat">
           <FaPen /> {!collapsed && <span className="chip-text">New</span>}

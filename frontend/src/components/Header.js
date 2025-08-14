@@ -1,12 +1,16 @@
 import React from 'react';
 import './Header.css';
-import cognizantImg from '../assets/cognizant.jpg';
 
 const Header = () => {
   return (
     <header className="header">
       <div className="header-left">
-        <img src={cognizantImg} alt="Cognizant" className="header-emblem" />
+        <h2>
+          <span className="logo-intelli">Astra</span>
+          <span className="logo-ops">AI</span>
+        </h2>
+      </div>
+      <div className="header-right">
         <div className="project-selector">
           <label>Project</label>
           <select>

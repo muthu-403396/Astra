@@ -3,8 +3,8 @@ import { useParams, useLocation } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
 import Chatbot from '../components/Chatbot';
-import { getLlmResponse } from '../services/llmService';
 import './ChatbotPage.css';
+import cognizantImg from '../assets/cognizant.jpg';
 
 const ChatbotPage = () => {
   const { username } = useParams();
@@ -313,32 +313,37 @@ const ChatbotPage = () => {
   const containerStyle = { gridTemplateColumns: `${sidebarCollapsed ? 64 : sidebarWidth}px 1fr` };
 
   return (
-    <div className={containerClass} style={containerStyle}>
-      <Sidebar 
-        username={username} 
-        onAgentSelect={handleAgentSelect}
-        onNewChat={handleNewChat}
-        sessions={sessions}
-        onSelectSession={handleSelectSession}
-        activeSessionId={activeSessionId}
-        persona={persona}
-        collapsed={sidebarCollapsed}
-        onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
-        theme={theme}
-        onToggleTheme={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-        onResize={handleResizeSidebar}
-      />
-      <div className="main-content">
+    <>
+      <img src={cognizantImg} alt="Cognizant" className="page-emblem" />
+      <div className="top-bar">
         <Header />
-        <Chatbot 
-          messages={activeSession.messages}
-          questions={activeSession.questions}
-          onSendMessage={handleSendMessage}
-          isLoading={isLoading}
-          onPromptSelect={handlePromptSelect}
-        />
       </div>
-    </div>
+      <div className={containerClass} style={containerStyle}>
+        <Sidebar 
+          username={username} 
+          onAgentSelect={handleAgentSelect}
+          onNewChat={handleNewChat}
+          sessions={sessions}
+          onSelectSession={handleSelectSession}
+          activeSessionId={activeSessionId}
+          persona={persona}
+          collapsed={sidebarCollapsed}
+          onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
+          theme={theme}
+          onToggleTheme={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+          onResize={handleResizeSidebar}
+        />
+        <div className="main-content">
+          <Chatbot 
+            messages={activeSession.messages}
+            questions={activeSession.questions}
+            onSendMessage={handleSendMessage}
+            isLoading={isLoading}
+            onPromptSelect={handlePromptSelect}
+          />
+        </div>
+      </div>
+    </>
   );
 };
 

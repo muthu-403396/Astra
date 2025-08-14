@@ -1,23 +1,30 @@
 .header {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   align-items: center;
-  padding: 0.75rem 1rem;
+  height: 72px;
+  padding: 0 1rem;
   background: #fff;
   border-bottom: 1px solid #ddd;
 }
 
-.header-left {
+.header-left,
+.header-right {
   display: flex;
   align-items: center;
   gap: 0.75rem;
 }
 
-.header-emblem {
-  height: 28px;
-  width: auto;
-  display: block;
-  border-radius: 4px;
+.header-right {
+  margin-left: auto;
+}
+
+.logo-intelli {
+  color: #2a6e8f;
+}
+
+.logo-ops {
+  color: #9c27b0;
 }
 
 .project-selector {
