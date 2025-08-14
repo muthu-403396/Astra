@@ -1,5 +1,4 @@
 import React from 'react';
-import { FaCog } from 'react-icons/fa';
 import './Header.css';
 import cognizantImg from '../assets/cognizant.jpg';
 
@@ -17,7 +16,6 @@ const Header = () => {
           </select>
         </div>
       </div>
-      <FaCog className="settings-icon" />
     </header>
   );
 };
