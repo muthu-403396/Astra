@@ -9,9 +9,11 @@ const Header = () => {
       <div className="header-left">
         <img src={cognizantImg} alt="Cognizant" className="header-emblem" />
         <div className="project-selector">
-          <label>Select Project</label>
+          <label>Project</label>
           <select>
-            {/* Options will be added later */}
+            <option>Development</option>
+            <option>Enhancement</option>
+            <option>Support</option>
           </select>
         </div>
       </div>

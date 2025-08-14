@@ -10,7 +10,8 @@ const LoginForm = () => {
 
   const handleLogin = (e) => {
     e.preventDefault();
-    if (username === '403396' && password === '1234') {
+    const validUsers = ['403396', '727490'];
+    if (validUsers.includes(username) && password === '1234') {
       localStorage.setItem('persona', persona);
       navigate(`/chatbot/${username}`, { state: { persona } });
     } else {
@@ -20,7 +21,7 @@ const LoginForm = () => {
 
   return (
     <div className="login-form">
-      <h2>Login to your Account</h2>
+      <h2>Login</h2>
       <form onSubmit={handleLogin}>
         <div className="input-group">
           <FaUser className="icon" />
@@ -32,10 +33,12 @@ const LoginForm = () => {
         </div>
         <div className="input-group persona-selector">
           <FaPen className="icon" />
-          <label>Select Persona</label>
+          <label>Personna</label>
           <select value={persona} onChange={(e) => setPersona(e.target.value)}>
             <option>Business User</option>
-            <option>Developer</option>
+            <option>Support Engineer</option>
+            <option>Data Engineer</option>
+            <option>Data Scientist</option>
           </select>
         </div>
         <button type="submit">Sign In</button>

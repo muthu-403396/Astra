@@ -30,6 +30,60 @@ const ChatbotPage = () => {
         plan: { type: 'sequential', steps: ['BI Engineers Agent', 'Business User Agent'] }
       }
     ],
+    'Support Engineer': [
+      {
+        text: 'Investigate a P1 login outage.',
+        plan: { type: 'sequential', steps: ['Incident History Agent', 'Support Engineer Agent', 'KEDB Agent'] }
+      },
+      {
+        text: 'Troubleshoot intermittent API failures.',
+        plan: { type: 'parallel', steps: ['Incident History Agent', 'KEDB Agent', 'Support Engineer Agent'] }
+      },
+      {
+        text: 'Find similar past incidents and resolutions.',
+        plan: { type: 'sequential', steps: ['Incident History Agent', 'KEDB Agent', 'Support Engineer Agent'] }
+      },
+      {
+        text: 'Prepare escalation summary for management.',
+        plan: { type: 'sequential', steps: ['Incident History Agent', 'Business User Agent'] }
+      }
+    ],
+    'Data Engineer': [
+      {
+        text: 'Diagnose slow ETL pipeline last night.',
+        plan: { type: 'sequential', steps: ['BI Engineers Agent', 'Data Analyst Agent'] }
+      },
+      {
+        text: 'Validate schema changes for sales model.',
+        plan: { type: 'parallel', steps: ['BI Engineers Agent', 'Support Engineer Agent'] }
+      },
+      {
+        text: 'List upstream/downstream dependencies of the orders table.',
+        plan: { type: 'sequential', steps: ['BI Engineers Agent'] }
+      },
+      {
+        text: 'Create a data quality checklist for ingestion.',
+        plan: { type: 'sequential', steps: ['BI Engineers Agent', 'Data Analyst Agent'] }
+      }
+    ],
+    'Data Scientist': [
+      {
+        text: 'Build a churn prediction experiment plan.',
+        plan: { type: 'parallel', steps: ['Data Analyst Agent', 'BI Engineers Agent'] }
+      },
+      {
+        text: 'Feature importance for recent churn model.',
+        plan: { type: 'sequential', steps: ['Data Analyst Agent'] }
+      },
+      {
+        text: 'Gather cohorts and KPIs for A/B test design.',
+        plan: { type: 'parallel', steps: ['Data Analyst Agent', 'Business User Agent'] }
+      },
+      {
+        text: 'Explain anomalies in prediction drift.',
+        plan: { type: 'sequential', steps: ['Data Analyst Agent', 'Support Engineer Agent'] }
+      }
+    ],
     'Developer': [
       {
         text: 'How do I troubleshoot a failing build?',
@@ -123,7 +177,7 @@ const ChatbotPage = () => {
       }, 1000);
     };
 
-  if (plan.type === 'sequential') {
+    if (plan.type === 'sequential') {
       let current = 0;
       const total = plan.steps.length + 2; // Start + steps + End
       const advance = () => {
