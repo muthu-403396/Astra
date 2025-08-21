@@ -3,79 +3,16 @@ import './RightSidebar.css';
 import { simulateOAuth } from '../services/authService';
 import LoginDialog from './LoginDialog';
 
-const initialExternalItems = [
-  {
-    id: 1,
-    name: 'Google Agentspace',
-    toggled: false,
-    subItems: [
-      { id: 'ga1', name: 'Vertex AI Agent', checked: false },
-      { id: 'ga2', name: 'Dialogflow Agent', checked: false },
-      { id: 'ga3', name: 'AutoML Agent', checked: false },
-    ],
-  },
-  {
-    id: 2,
-    name: 'Azure AI Foundry',
-    toggled: false,
-    subItems: [
-      { id: 'af1', name: 'Azure Bot Service Agent', checked: false },
-      { id: 'af2', name: 'OpenAI Service Agent', checked: false },
-      { id: 'af3', name: 'Cognitive Services Agent', checked: false },
-    ],
-  },
-  {
-    id: 3,
-    name: 'AWS Bedrock',
-    toggled: false,
-    subItems: [
-      { id: 'ab1', name: 'Titan Agent', checked: false },
-      { id: 'ab2', name: 'Claude Agent', checked: false },
-      { id: 'ab3', name: 'Jurassic Agent', checked: false },
-    ],
-  },
-  {
-    id: 4,
-    name: 'Snowflake Cortex',
-    toggled: false,
-    subItems: [
-      { id: 'sc1', name: 'Arctic Agent', checked: false },
-      { id: 'sc2', name: 'Llama Agent', checked: false },
-      { id: 'sc3', name: 'Mistral Agent', checked: false },
-    ],
-  },
-  {
-    id: 5,
-    name: 'Agent Bricks',
-    toggled: false,
-    subItems: [
-      { id: 'agb1', name: 'DBRX Agent', checked: false },
-      { id: 'agb2', name: 'Dolly Agent', checked: false },
-      { id: 'agb3', name: 'MLflow Agent', checked: false },
-    ],
-  },
-];
-
-const initialInternalItems = [
-  {
-    id: 1,
-    name: 'AI Foundry',
-    toggled: false,
-    subItems: [],
-  },
-  {
-    id: 2,
-    name: 'Intelli Ops',
-    toggled: false,
-    subItems: [],
-  },
-];
-
-const RightSidebar = ({ collapsed, onToggleCollapse }) => {
+const RightSidebar = ({
+  collapsed,
+  onToggleCollapse,
+  externalItems,
+  internalItems,
+  setExternalItems,
+  setInternalItems,
+}) => {
   const [category1Open, setCategory1Open] = useState(false);
   const [category2Open, setCategory2Open] = useState(false);
-  const [externalItems, setExternalItems] = useState(initialExternalItems);
-  const [internalItems, setInternalItems] = useState(initialInternalItems);
   const [showLoginDialog, setShowLoginDialog] = useState(false);
   const [authenticatingItem, setAuthenticatingItem] = useState(null);
   const [verifyingItemId, setVerifyingItemId] = useState(null);
