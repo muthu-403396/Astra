@@ -11,10 +11,7 @@ const statusToStyle = (status) => {
 };
 
 const buildElements = (plan, execution) => {
-  if (!plan) return { nodes: [], edges: [] };
-  const isParallel = plan.type === 'parallel';
-  const nodes = [];
-  const edges = [];
+  if (!plan || !plan.steps) return { nodes: [], edges: [] };
 
   const stepMap = new Map();
   if (execution && execution.steps) {
@@ -34,32 +31,59 @@ const buildElements = (plan, execution) => {
     return { id, position, data: { label: labelNode }, style: { padding: 10, borderRadius: 8, ...statusToStyle(st?.status) } };
   };
 
-  nodes.push(nodeFor('start', 'Start', { x: 50, y: 50 }));
+  const nodes = [];
+  const edges = [];
+  let x = 50;
+  const yStep = 100;
+  const yCenter = 200;
 
-  if (isParallel) {
-    plan.steps.forEach((name, idx) => {
-      const y = 150 + idx * 100;
-      const nodeId = `agent-${idx}`;
-      nodes.push(nodeFor(nodeId, name, { x: 250, y }));
-      edges.push({ id: `e-start-${nodeId}`, source: 'start', target: nodeId });
+  nodes.push(nodeFor('start', 'Start', { x, y: yCenter }));
+  x += 250;
+
+  let lastNodeIds = ['start'];
+
+  plan.steps.forEach((stage, stageIdx) => {
+    const currentNodeIds = [];
+    const stageId = `stage-${stageIdx}`;
+
+    if (stage.type === 'parallel' && stage.steps.length > 0) {
+      stage.steps.forEach((agentName, agentIdx) => {
+        const nodeId = `${stageId}-agent-${agentIdx}`;
+        const y = yCenter + (agentIdx - (stage.steps.length - 1) / 2) * yStep;
+        nodes.push(nodeFor(nodeId, agentName, { x, y }));
+        currentNodeIds.push(nodeId);
+
+        lastNodeIds.forEach(prevId => {
+          edges.push({ id: `e-${prevId}-${nodeId}`, source: prevId, target: nodeId, animated: true });
+        });
+      });
+      x += 250;
+      lastNodeIds = currentNodeIds;
+    } else if (stage.type === 'sequential' && stage.steps.length > 0) {
+      let lastSeqId = null;
+      stage.steps.forEach((agentName, agentIdx) => {
+        const nodeId = `${stageId}-agent-${agentIdx}`;
+        nodes.push(nodeFor(nodeId, agentName, { x, y: yCenter }));
+        
+        if (agentIdx === 0) {
+          lastNodeIds.forEach(prevId => {
+            edges.push({ id: `e-${prevId}-${nodeId}`, source: prevId, target: nodeId, animated: true });
+          });
+        } else {
+          edges.push({ id: `e-${lastSeqId}-${nodeId}`, source: lastSeqId, target: nodeId, animated: true });
+        }
+        lastSeqId = nodeId;
+        x += 250;
+      });
+      lastNodeIds = lastSeqId ? [lastSeqId] : [];
+    }
+  });
+
+  nodes.push(nodeFor('end', 'End', { x, y: yCenter }));
+  if (lastNodeIds.length > 0) {
+    lastNodeIds.forEach(prevId => {
+      edges.push({ id: `e-${prevId}-end`, source: prevId, target: 'end', animated: true });
     });
-    nodes.push(nodeFor('end', 'End', { x: 500, y: 150 + (plan.steps.length - 1) * 50 }));
-    plan.steps.forEach((_, idx) => {
-      edges.push({ id: `e-agent-${idx}-end`, source: `agent-${idx}`, target: 'end' });
-    });
-  } else {
-    let lastId = 'start';
-    let x = 250;
-    let y = 50;
-    plan.steps.forEach((name, idx) => {
-      const nodeId = `agent-${idx}`;
-      nodes.push(nodeFor(nodeId, name, { x, y }));
-      edges.push({ id: `e-${lastId}-${nodeId}`, source: lastId, target: nodeId });
-      lastId = nodeId;
-      x += 200;
-    });
-    nodes.push(nodeFor('end', 'End', { x, y }));
-    edges.push({ id: `e-${lastId}-end`, source: lastId, target: 'end' });
   }
 
   return { nodes, edges };
