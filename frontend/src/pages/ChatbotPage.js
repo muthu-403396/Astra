@@ -3,6 +3,7 @@ import { useParams, useLocation } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
 import Chatbot from '../components/Chatbot';
+import RightSidebar from '../components/RightSidebar';
 import './ChatbotPage.css';
 import cognizantImg from '../assets/cognizant.jpg';
 
@@ -124,6 +125,7 @@ const ChatbotPage = () => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [theme, setTheme] = useState('light');
   const [sidebarWidth, setSidebarWidth] = useState(250);
+  const [rightSidebarCollapsed, setRightSidebarCollapsed] = useState(true);
 
   const activeSession = sessions.find(s => s.id === activeSessionId);
 
@@ -310,7 +312,7 @@ const ChatbotPage = () => {
   };
 
   const containerClass = `chatbot-page${sidebarCollapsed ? ' collapsed' : ''}${theme === 'dark' ? ' theme-dark' : ''}`;
-  const containerStyle = { gridTemplateColumns: `${sidebarCollapsed ? 64 : sidebarWidth}px 1fr` };
+  const containerStyle = { gridTemplateColumns: `${sidebarCollapsed ? 64 : sidebarWidth}px 1fr ${rightSidebarCollapsed ? '64px' : '300px'}` };
 
   return (
     <>
@@ -342,6 +344,7 @@ const ChatbotPage = () => {
             onPromptSelect={handlePromptSelect}
           />
         </div>
+        <RightSidebar collapsed={rightSidebarCollapsed} onToggleCollapse={() => setRightSidebarCollapsed(!rightSidebarCollapsed)} />
       </div>
     </>
   );
