@@ -14,9 +14,9 @@ const Header = () => {
         <div className="project-selector">
           <label>Project</label>
           <select>
-            <option>Development</option>
-            <option>Enhancement</option>
-            <option>Support</option>
+            <option>Supply Chain</option>
+            <option>Finance</option>
+            <option>CDO</option>
           </select>
         </div>
       </div>

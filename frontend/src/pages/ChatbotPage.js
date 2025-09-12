@@ -69,7 +69,7 @@ const initialInternalItems = [
   },
   {
     id: 2,
-    name: 'Intelli Ops',
+    name: 'IntelliOps',
     toggled: false,
     subItems: [],
   },
