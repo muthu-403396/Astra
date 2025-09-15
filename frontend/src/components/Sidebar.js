@@ -213,7 +213,6 @@ const Sidebar = ({ username, onAgentSelect, onNewChat, sessions, onSelectSession
           {!collapsed && (
             <div>
               <strong>{username}</strong>
-              <span className={`persona-badge ${personaClass}`}>{persona}</span>
             </div>
           )}
         </div>

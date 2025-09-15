@@ -456,7 +456,7 @@ const ChatbotPage = () => {
     <>
       <img src={cognizantImg} alt="Cognizant" className="page-emblem" />
       <div className="top-bar">
-        <Header />
+        <Header persona={persona} username={username} />
       </div>
       <div className={containerClass} style={containerStyle}>
         <Sidebar 

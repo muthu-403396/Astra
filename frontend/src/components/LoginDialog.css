@@ -64,4 +64,15 @@
 .dialog-actions button[type="submit"] {
   background-color: #007bff;
   color: white;
+}
+
+/* Accent style for Request Connection */
+.dialog-actions .request-btn {
+  background-color: #e6d5c3; /* light brown */
+  color: #4a3728; /* dark brown text for contrast */
+  border: 1px solid #c8b29d; /* subtle border to stand out */
+}
+.dialog-actions .request-btn:hover {
+  background-color: #d9c5b0; /* slightly darker on hover */
+  border-color: #b9a088;
 } 
