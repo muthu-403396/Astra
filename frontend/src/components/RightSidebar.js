@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import './RightSidebar.css';
-import { simulateOAuth } from '../services/authService';
-import LoginDialog from './LoginDialog';
+import ConnectionDialog from './ConnectionDialog';
 
 const RightSidebar = ({
   collapsed,
@@ -13,9 +12,42 @@ const RightSidebar = ({
 }) => {
   const [category1Open, setCategory1Open] = useState(false);
   const [category2Open, setCategory2Open] = useState(false);
-  const [showLoginDialog, setShowLoginDialog] = useState(false);
-  const [authenticatingItem, setAuthenticatingItem] = useState(null);
+  // Stored per-item connection values
+  const [externalEndpoints, setExternalEndpoints] = useState({}); // { [itemId]: endpoint }
+  const [externalTokens, setExternalTokens] = useState({}); // { [itemId]: token }
   const [verifyingItemId, setVerifyingItemId] = useState(null);
+  // Dialog state
+  const [pendingItemId, setPendingItemId] = useState(null);
+  const [showConnDialog, setShowConnDialog] = useState(false);
+
+  const getEndpoint = (id) => (externalEndpoints[id] || '').trim();
+  const getToken = (id) => (externalTokens[id] || '').trim();
+
+  const openConnDialogFor = (itemId) => {
+    setPendingItemId(itemId);
+    setShowConnDialog(true);
+  };
+
+  const closeConnDialog = () => {
+    setPendingItemId(null);
+    setShowConnDialog(false);
+  };
+
+  const confirmConnDialog = async ({ endpoint, token }) => {
+    // Save values for this item
+    const itemId = pendingItemId;
+    setExternalEndpoints(prev => ({ ...prev, [itemId]: endpoint }));
+    setExternalTokens(prev => ({ ...prev, [itemId]: token }));
+    setShowConnDialog(false);
+
+    // Proceed to enable now that we have values
+    setPendingItemId(null);
+    setVerifyingItemId(itemId);
+    await new Promise(resolve => setTimeout(resolve, 500));
+    setVerifyingItemId(null);
+    setExternalItems(externalItems.map(i => i.id === itemId ? { ...i, toggled: true } : i));
+    if (!category1Open) setCategory1Open(true);
+  };
 
   const handleExternalToggle = async (itemId) => {
     const item = externalItems.find(i => i.id === itemId);
@@ -35,18 +67,21 @@ const RightSidebar = ({
       return;
     }
 
+    // If missing per-item endpoint/token, open dialog
+    const endpoint = getEndpoint(itemId);
+    const token = getToken(itemId);
+    if (!endpoint || !token) {
+      openConnDialogFor(itemId);
+      return;
+    }
+
     setVerifyingItemId(itemId);
-    const isAuthenticated = await simulateOAuth();
+    await new Promise(resolve => setTimeout(resolve, 500));
     setVerifyingItemId(null);
 
-    if (isAuthenticated) {
-      setExternalItems(externalItems.map(i => i.id === itemId ? { ...i, toggled: true } : i));
-      if (!category1Open) {
-        setCategory1Open(true);
-      }
-    } else {
-      setAuthenticatingItem(item);
-      setShowLoginDialog(true);
+    setExternalItems(externalItems.map(i => i.id === itemId ? { ...i, toggled: true } : i));
+    if (!category1Open) {
+      setCategory1Open(true);
     }
   };
 
@@ -61,26 +96,6 @@ const RightSidebar = ({
           }
         : item
     ));
-  };
-
-  const handleDialogLogin = (username, password) => {
-    // Simple check for username and password
-    if (username === 'admin' && password === 'admin') {
-      console.log(`Logging in with ${username}/${password}`);
-      setShowLoginDialog(false);
-      setExternalItems(externalItems.map(i => i.id === authenticatingItem.id ? { ...i, toggled: true } : i));
-      if (!category1Open) {
-        setCategory1Open(true);
-      }
-      setAuthenticatingItem(null);
-    } else {
-      alert('Invalid username or password');
-    }
-  };
-
-  const handleDialogCancel = () => {
-    setShowLoginDialog(false);
-    setAuthenticatingItem(null);
   };
 
   const handleInternalToggle = (itemId) => {
@@ -113,6 +128,7 @@ const RightSidebar = ({
       {!collapsed && (
         <div className="sidebar-content-wrapper">
           <h2>Multi Agent System</h2>
+
           <div className="categories-wrapper">
             <div className="category">
               <h3 onClick={() => setCategory1Open(!category1Open)}>
@@ -125,14 +141,19 @@ const RightSidebar = ({
                     <div key={item.id} className="toggle-item">
                       <div className="toggle-header">
                         <span>{item.name}</span>
-                        {verifyingItemId === item.id ? (
-                          <span>Verifying...</span>
-                        ) : (
-                          <label className="switch">
-                            <input type="checkbox" checked={item.toggled} onChange={() => handleExternalToggle(item.id)} />
-                            <span className="slider round"></span>
-                          </label>
-                        )}
+                        <div className="toggle-actions">
+                          {item.toggled && (
+                            <button className="configure-btn" onClick={() => openConnDialogFor(item.id)}>Configure</button>
+                          )}
+                          {verifyingItemId === item.id ? (
+                            <span>Verifying...</span>
+                          ) : (
+                            <label className="switch">
+                              <input type="checkbox" checked={item.toggled} onChange={() => handleExternalToggle(item.id)} />
+                              <span className="slider round"></span>
+                            </label>
+                          )}
+                        </div>
                       </div>
                       {item.toggled && (
                         <div className="sub-items">
@@ -191,10 +212,13 @@ const RightSidebar = ({
           </div>
         </div>
       )}
-      {showLoginDialog && (
-        <LoginDialog
-          onLogin={handleDialogLogin}
-          onCancel={handleDialogCancel}
+      {showConnDialog && pendingItemId != null && (
+        <ConnectionDialog
+          title="Connect External MAS"
+          initialEndpoint={externalEndpoints[pendingItemId] || ''}
+          initialToken={externalTokens[pendingItemId] || ''}
+          onConfirm={confirmConnDialog}
+          onCancel={closeConnDialog}
         />
       )}
     </div>

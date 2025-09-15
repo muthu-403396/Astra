@@ -1,7 +1,8 @@
 import React from 'react';
 import './Header.css';
 
-const Header = () => {
+const Header = ({ persona, username }) => {
+  const personaClass = persona && persona.toLowerCase().includes('developer') ? 'developer' : 'business';
   return (
     <header className="header">
       <div className="header-left">
@@ -14,10 +15,17 @@ const Header = () => {
         <div className="project-selector">
           <label>Project</label>
           <select>
-            <option>Development</option>
-            <option>Enhancement</option>
-            <option>Support</option>
+            <option>Supply Chain</option>
+            <option>Finance</option>
+            <option>CDO</option>
           </select>
+        </div>
+        <div className="header-divider"></div>
+        <div className="persona-right">
+          <div className="persona-labels">
+            {username && <span className="username">{username}</span>}
+            {persona && <span className={`persona-badge ${personaClass}`}>{persona}</span>}
+          </div>
         </div>
       </div>
     </header>
